@@ -1,78 +1,93 @@
-import DashboardStats from './components/DashboardStats'
-import AmountStats from './components/AmountStats'
-import PageStats from './components/PageStats'
+import DashboardStats from "./components/DashboardStats";
+import AmountStats from "./components/AmountStats";
+import PageStats from "./components/PageStats";
 
-import UserGroupIcon  from '@heroicons/react/24/outline/UserGroupIcon'
-import UsersIcon  from '@heroicons/react/24/outline/UsersIcon'
-import CircleStackIcon  from '@heroicons/react/24/outline/CircleStackIcon'
-import CreditCardIcon  from '@heroicons/react/24/outline/CreditCardIcon'
-import UserChannels from './components/UserChannels'
-import LineChart from './components/LineChart'
-import BarChart from './components/BarChart'
-import DashboardTopBar from './components/DashboardTopBar'
-import { useDispatch } from 'react-redux'
-import {showNotification} from '../common/headerSlice'
-import DoughnutChart from './components/DoughnutChart'
-import { useState } from 'react'
+import UserGroupIcon from "@heroicons/react/24/outline/UserGroupIcon";
+import UsersIcon from "@heroicons/react/24/outline/UsersIcon";
+import CircleStackIcon from "@heroicons/react/24/outline/CircleStackIcon";
+import CreditCardIcon from "@heroicons/react/24/outline/CreditCardIcon";
+import UserChannels from "./components/UserChannels";
+import LineChart from "./components/LineChart";
+import BarChart from "./components/BarChart";
+import DashboardTopBar from "./components/DashboardTopBar";
+import { useDispatch } from "react-redux";
+import { showNotification } from "../common/headerSlice";
+import DoughnutChart from "./components/DoughnutChart";
+// import { useState } from "react";
 
-const statsData = [
-    {title : "New Users", value : "34.7k", icon : <UserGroupIcon className='w-8 h-8'/>, description : "↗︎ 2300 (22%)"},
-    {title : "Total Sales", value : "$34,545", icon : <CreditCardIcon className='w-8 h-8'/>, description : "Current month"},
-    {title : "Pending Leads", value : "450", icon : <CircleStackIcon className='w-8 h-8'/>, description : "50 in hot leads"},
-    {title : "Active Users", value : "5.6k", icon : <UsersIcon className='w-8 h-8'/>, description : "↙ 300 (18%)"},
-]
+const dadosDasEstatisticas = [
+  {
+    title: "Novos Usuários",
+    value: "34.7k",
+    icon: <UserGroupIcon className="w-8 h-8" />,
+    description: "↗︎ 2300 (22%)",
+  },
+  {
+    title: "Vendas Totais",
+    value: "$34,545",
+    icon: <CreditCardIcon className="w-8 h-8" />,
+    description: "Mês atual",
+  },
+  {
+    title: "Leads Pendentes",
+    value: "450",
+    icon: <CircleStackIcon className="w-8 h-8" />,
+    description: "50 em leads quentes",
+  },
+  {
+    title: "Usuários Ativos",
+    value: "5.6k",
+    icon: <UsersIcon className="w-8 h-8" />,
+    description: "↙ 300 (18%)",
+  },
+];
 
+function Painel() {
+  const dispatch = useDispatch();
 
+  const atualizarPeriodoDoPainel = (novoIntervalo) => {
+    // Intervalo do painel alterado, escreva código para atualizar seus valores
+    dispatch(
+      showNotification({
+        message: `Período atualizado para ${novoIntervalo.startDate} até ${novoIntervalo.endDate}`,
+        status: 1,
+      }),
+    );
+  };
 
-function Dashboard(){
+  return (
+    <>
+      {/** ---------------------- Conteúdo Selecionar Período ------------------------- */}
+      <DashboardTopBar updateDashboardPeriod={atualizarPeriodoDoPainel} />
 
-    const dispatch = useDispatch()
- 
+      {/** ---------------------- Conteúdo de estatísticas diferentes 1 ------------------------- */}
+      <div className="grid lg:grid-cols-4 mt-2 md:grid-cols-2 grid-cols-1 gap-6">
+        {dadosDasEstatisticas.map((d, k) => {
+          return <DashboardStats key={k} {...d} colorIndex={k} />;
+        })}
+      </div>
 
-    const updateDashboardPeriod = (newRange) => {
-        // Dashboard range changed, write code to refresh your values
-        dispatch(showNotification({message : `Period updated to ${newRange.startDate} to ${newRange.endDate}`, status : 1}))
-    }
+      {/** ---------------------- Gráficos diferentes ------------------------- */}
+      <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
+        <LineChart />
+        <BarChart />
+      </div>
 
-    return(
-        <>
-        {/** ---------------------- Select Period Content ------------------------- */}
-            <DashboardTopBar updateDashboardPeriod={updateDashboardPeriod}/>
-        
-        {/** ---------------------- Different stats content 1 ------------------------- */}
-            <div className="grid lg:grid-cols-4 mt-2 md:grid-cols-2 grid-cols-1 gap-6">
-                {
-                    statsData.map((d, k) => {
-                        return (
-                            <DashboardStats key={k} {...d} colorIndex={k}/>
-                        )
-                    })
-                }
-            </div>
+      {/** ---------------------- Conteúdo de estatísticas diferentes 2 ------------------------- */}
 
+      <div className="grid lg:grid-cols-2 mt-10 grid-cols-1 gap-6">
+        <AmountStats />
+        <PageStats />
+      </div>
 
+      {/** ---------------------- Tabela de canais de origem do usuário  ------------------------- */}
 
-        {/** ---------------------- Different charts ------------------------- */}
-            <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
-                <LineChart />
-                <BarChart />
-            </div>
-            
-        {/** ---------------------- Different stats content 2 ------------------------- */}
-        
-            <div className="grid lg:grid-cols-2 mt-10 grid-cols-1 gap-6">
-                <AmountStats />
-                <PageStats />
-            </div>
-
-        {/** ---------------------- User source channels table  ------------------------- */}
-        
-            <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
-                <UserChannels />
-                <DoughnutChart />
-            </div>
-        </>
-    )
+      <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
+        <UserChannels />
+        <DoughnutChart />
+      </div>
+    </>
+  );
 }
 
-export default Dashboard
+export default Painel;

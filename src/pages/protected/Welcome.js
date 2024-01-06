@@ -16,15 +16,17 @@ function InternalPage() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setPageTitle('Bem-vindo'));
+    dispatch(setPageTitle({ title: 'Home' }));
   }, [dispatch]);
 
     return (
         <div className="hero min-h-screen bg-base-200">
             <div className="hero-content flex-col">
                 <div className="text-center">
-                    <h1 className="text-4xl font-bold text-gray-800 mb-6">Bem-vindo ao <span className="text-blue-600">LoanMaster</span></h1>
-                    <p className="mb-8">A plataforma definitiva que revoluciona a maneira como você gerencia e acompanha empréstimos. Nossa missão é facilitar a sua vida financeira com ferramentas poderosas e insights inteligentes.</p>
+                    <h1 className="text-4xl font-bold text-gray-400 mb-6">Bem-vindo ao <span className="text-blue-600">Próspera Fácil</span></h1>
+                    <p className="mb-8 mx-auto">
+            Bem-vindo ao futuro da gestão financeira! Com o Próspera Fácil, você desfruta de um controle sem precedentes sobre seus acordos de empréstimo. Nossa plataforma inovadora não só simplifica a forma como você acompanha os investimentos, mas também oferece uma experiência personalizada que se adapta às suas necessidades únicas. Descubra insights que vão além dos números e tome decisões embasadas com uma clareza que só o Próspera Fácil pode proporcionar.
+          </p>
                 </div>
                 <div className="flex flex-wrap justify-center gap-10 mb-10">
                     <FeatureCard
@@ -65,11 +67,11 @@ function InternalPage() {
                 </div>
                 <div className="divider my-10"></div>
                 <div className="flex flex-col items-center">
-                    <h3 className="text-2xl font-semibold text-gray-800 mb-4">Entre em Contato</h3>
-                    <p className="mb-4">Nossa equipe está pronta para ajudar você a obter o máximo do LoanMaster. Entre em contato para suporte ou para discutir funcionalidades personalizadas.</p>
+                    <h3 className="text-2xl font-semibold text-gray-300 mb-4">Entre em Contato</h3>
+                    <p className="mb-4">Nossa equipe está pronta para ajudar você a obter o máximo do Próspera Fácil. Entre em contato para suporte ou para discutir funcionalidades personalizadas.</p>
                     <div className="flex gap-4 mb-6">
-                        <a href="mailto:suporte@loanmaster.com" className="flex items-center text-blue-600">
-                            <EnvelopeIcon className="h-6 w-6 mr-2" /> suporte@loanmaster.com
+                        <a href="mailto:suporte@Próspera Fácil.com" className="flex items-center text-blue-600">
+                            <EnvelopeIcon className="h-6 w-6 mr-2" /> suporte@Próspera Fácil.com
                         </a>
                         <a href="tel:+550999999999" className="flex items-center text-blue-600">
                             <PhoneIcon className="h-6 w-6 mr-2" /> +55 (0)9 9999-9999

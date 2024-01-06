@@ -8,9 +8,9 @@ import {
   Tooltip,
   Filler,
   Legend,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
-import TitleCard from '../../../components/Cards/TitleCard';
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+import TitleCard from "../../../components/Cards/TitleCard";
 
 ChartJS.register(
   CategoryScale,
@@ -20,43 +20,49 @@ ChartJS.register(
   Title,
   Tooltip,
   Filler,
-  Legend
+  Legend,
 );
 
-function LineChart(){
-
-  const options = {
+function GraficoLinha() {
+  const opcoes = {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top',
+        position: "top",
       },
     },
   };
 
-  
-  const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+  const labels = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+  ];
 
-  const data = {
-  labels,
-  datasets: [
-    {
-      fill: true,
-      label: 'MAU',
-      data: labels.map(() => { return Math.random() * 100 + 500 }),
-      borderColor: 'rgb(53, 162, 235)',
-      backgroundColor: 'rgba(53, 162, 235, 0.5)',
-    },
-  ],
-};
-  
+  const dados = {
+    labels,
+    datasets: [
+      {
+        fill: true,
+        label: "MAU",
+        data: labels.map(() => {
+          return Math.random() * 100 + 500;
+        }),
+        borderColor: "rgb(53, 162, 235)",
+        backgroundColor: "rgba(53, 162, 235, 0.5)",
+      },
+    ],
+  };
 
-    return(
-      <TitleCard title={"Montly Active Users (in K)"}>
-          <Line data={data} options={options}/>
-      </TitleCard>
-    )
+  return (
+    <TitleCard title={"Usuários Ativos Mensais (em K)"}>
+      <Line data={dados} options={opcoes} />
+    </TitleCard>
+  );
 }
 
-
-export default LineChart
+export default GraficoLinha;
