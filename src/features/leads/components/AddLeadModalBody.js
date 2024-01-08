@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+
 import InputText from "../../../components/Input/InputText";
 import ErrorText from "../../../components/Typography/ErrorText";
 import { showNotification } from "../../common/headerSlice";
@@ -11,12 +12,27 @@ const INITIAL_LEAD_OBJ = {
   cpf: "",
   rg: "",
   address: "",
+  photoUrl: "", // Adicionado para armazenar a URL da foto
 };
 
 function AddLeadModalBody({ closeModal }) {
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState("");
   const [leadObj, setLeadObj] = useState(INITIAL_LEAD_OBJ);
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setSelectedFile(file);
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLeadObj({ ...leadObj, photoUrl: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const saveNewLead = () => {
     if (leadObj.name.trim() === "") return setErrorMessage("Name is required!");
@@ -39,7 +55,6 @@ function AddLeadModalBody({ closeModal }) {
     setErrorMessage("");
     setLeadObj({ ...leadObj, [updateType]: value });
   };
-
   return (
     <>
       <InputText
@@ -82,6 +97,13 @@ function AddLeadModalBody({ closeModal }) {
         labelTitle="Address"
         updateFormValue={updateFormValue}
       />
+
+      <div className="mt-4">
+        <label className="label">
+          <span className="label-text">Photo</span>
+        </label>
+        <input type="file" onChange={handleFileChange} />
+      </div>
 
       <ErrorText styleClass="mt-16">{errorMessage}</ErrorText>
       <div className="modal-action">

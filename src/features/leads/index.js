@@ -1,17 +1,16 @@
+import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
 import TitleCard from "../../components/Cards/TitleCard";
-import { openModal } from "../common/modalSlice";
-import { getLeadsContent, deleteLead } from "./leadSlice";
 import { showNotification } from "../common/headerSlice";
-import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
+import { openModal } from "../common/modalSlice";
+import { deleteLead, getLeadsContent } from "./leadSlice";
 
 const TopSideButtons = () => {
   const dispatch = useDispatch();
 
   const openAddNewLeadModal = () => {
-    // Aqui você deve implementar a lógica para abrir o modal de adição de novo cadastro
-    // Por exemplo, você pode usar um formulário para coletar os dados do novo cadastro
     dispatch(openModal({ title: "Add New Lead", bodyType: "LEAD_ADD_NEW" }));
   };
 
@@ -37,9 +36,7 @@ function Leads() {
 
   const deleteCurrentLead = (index) => {
     dispatch(deleteLead({ index }));
-    dispatch(
-      showNotification({ message: "Lead Deleted Successfully!", status: 1 }),
-    ); // Exibe a notificação após a deleção
+    dispatch(showNotification({ message: "Lead Deleted Successfully!", status: 1 }));
   };
 
   return (
@@ -53,6 +50,7 @@ function Leads() {
           <table className="table w-full">
             <thead>
               <tr>
+                <th>Photo</th>
                 <th>Name</th>
                 <th>Surname</th>
                 <th>CPF</th>
@@ -64,6 +62,11 @@ function Leads() {
             <tbody>
               {leads.map((lead, index) => (
                 <tr key={index}>
+                  <td>
+                    {lead.photoUrl && (
+                      <img src={lead.photoUrl} alt="Lead" className="w-10 h-10 rounded-full" />
+                    )}
+                  </td>
                   <td>{lead.name}</td>
                   <td>{lead.surname}</td>
                   <td>{lead.cpf}</td>
@@ -74,7 +77,7 @@ function Leads() {
                       className="btn btn-square btn-ghost"
                       onClick={() => deleteCurrentLead(index)}
                     >
-                      <TrashIcon className="w-5" />
+                      <TrashIcon className="w-5 h-5" />
                     </button>
                   </td>
                 </tr>
