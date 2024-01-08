@@ -1,5 +1,6 @@
+import EditIcon from "@heroicons/react/24/outline/PencilIcon";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import TitleCard from "../../components/Cards/TitleCard";
@@ -7,11 +8,27 @@ import { showNotification } from "../common/headerSlice";
 import { openModal } from "../common/modalSlice";
 import { deleteLead, getLeadsContent } from "./leadSlice";
 
+function ConfirmDeleteModal({ isOpen, onClose, onConfirm, leadId }) {
+  return (
+    <div className={`modal ${isOpen ? 'modal-open' : ''}`}>
+      <div className="modal-box">
+        <p>Tem certeza de que deseja excluir este cliente?</p>
+        <div className="modal-action">
+          <button className="btn btn-ghost" onClick={onClose}>Cancelar</button>
+          <button className="btn btn-error" onClick={() => onConfirm(leadId)}>Excluir</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const TopSideButtons = () => {
   const dispatch = useDispatch();
 
   const openAddNewLeadModal = () => {
-    dispatch(openModal({ title: "Add New Lead", bodyType: "LEAD_ADD_NEW" }));
+    dispatch(
+      openModal({ title: "Adicionar Novo Cliente", bodyType: "LEAD_ADD_NEW" }),
+    );
   };
 
   return (
@@ -20,7 +37,7 @@ const TopSideButtons = () => {
         className="btn px-6 btn-sm normal-case btn-primary"
         onClick={openAddNewLeadModal}
       >
-        Add New
+        Adicionar Novo Cliente
       </button>
     </div>
   );
@@ -29,20 +46,42 @@ const TopSideButtons = () => {
 function Leads() {
   const { leads } = useSelector((state) => state.lead);
   const dispatch = useDispatch();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedLeadId, setSelectedLeadId] = useState(null);
 
   useEffect(() => {
     dispatch(getLeadsContent());
   }, [dispatch]);
 
-  const deleteCurrentLead = (index) => {
-    dispatch(deleteLead({ index }));
-    dispatch(showNotification({ message: "Lead Deleted Successfully!", status: 1 }));
+  const openDeleteModal = (leadId) => {
+    setSelectedLeadId(leadId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+  };
+
+  const confirmDelete = (leadId) => {
+    dispatch(deleteLead({ id: leadId }));
+    dispatch(showNotification({ message: "Cliente excluído com sucesso!", status: 1 }));
+    closeDeleteModal();
+  };
+
+  const editCurrentLead = (lead) => {
+    dispatch(
+      openModal({
+        title: "Editar Cliente",
+        bodyType: "LEAD_ADD_NEW",
+        initialData: lead,
+      }),
+    );
   };
 
   return (
     <>
       <TitleCard
-        title="Current Leads"
+        title="Clientes Atuais"
         topMargin="mt-2"
         TopSideButtons={<TopSideButtons />}
       >
@@ -50,21 +89,25 @@ function Leads() {
           <table className="table w-full">
             <thead>
               <tr>
-                <th>Photo</th>
-                <th>Name</th>
-                <th>Surname</th>
+                <th>Foto</th>
+                <th>Nome</th>
+                <th>Sobrenome</th>
                 <th>CPF</th>
                 <th>RG</th>
-                <th>Address</th>
-                <th></th>
+                <th>Endereço</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
-              {leads.map((lead, index) => (
-                <tr key={index}>
+              {leads.map((lead) => (
+                <tr key={lead.id}>
                   <td>
                     {lead.photoUrl && (
-                      <img src={lead.photoUrl} alt="Lead" className="w-10 h-10 rounded-full" />
+                      <img
+                        src={lead.photoUrl}
+                        alt={`Foto de ${lead.name}`}
+                        className="w-10 h-10 rounded-full"
+                      />
                     )}
                   </td>
                   <td>{lead.name}</td>
@@ -75,7 +118,13 @@ function Leads() {
                   <td>
                     <button
                       className="btn btn-square btn-ghost"
-                      onClick={() => deleteCurrentLead(index)}
+                      onClick={() => editCurrentLead(lead)}
+                    >
+                      <EditIcon className="w-5 h-5" />
+                    </button>
+                    <button
+                      className="btn btn-square btn-ghost"
+                      onClick={() => openDeleteModal(lead.id)}
                     >
                       <TrashIcon className="w-5 h-5" />
                     </button>
@@ -86,6 +135,12 @@ function Leads() {
           </table>
         </div>
       </TitleCard>
+      <ConfirmDeleteModal 
+        isOpen={isDeleteModalOpen} 
+        onClose={closeDeleteModal} 
+        onConfirm={confirmDelete} 
+        leadId={selectedLeadId} 
+      />
     </>
   );
 }

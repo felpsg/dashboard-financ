@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import InputText from "../../../components/Input/InputText";
 import ErrorText from "../../../components/Typography/ErrorText";
-import { showNotification } from "../../common/headerSlice";
-import { addNewLead } from "../leadSlice";
+import { addNewLead, updateLead } from "../leadSlice";
 
 const INITIAL_LEAD_OBJ = {
   name: "",
@@ -12,14 +11,24 @@ const INITIAL_LEAD_OBJ = {
   cpf: "",
   rg: "",
   address: "",
-  photoUrl: "", // Adicionado para armazenar a URL da foto
+  photoUrl: "",
 };
 
-function AddLeadModalBody({ closeModal }) {
+function AddLeadModalBody({ closeModal, initialData }) {
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState("");
-  const [leadObj, setLeadObj] = useState(INITIAL_LEAD_OBJ);
+  const [leadObj, setLeadObj] = useState(initialData || INITIAL_LEAD_OBJ);
+
   const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (initialData) {
+      setLeadObj(initialData);
+    } else {
+      setLeadObj(INITIAL_LEAD_OBJ);
+    }
+  }, [initialData]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -28,54 +37,70 @@ function AddLeadModalBody({ closeModal }) {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setLeadObj({ ...leadObj, photoUrl: reader.result });
+        setLeadObj((prev) => ({ ...prev, photoUrl: reader.result }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const saveNewLead = () => {
-    if (leadObj.name.trim() === "") return setErrorMessage("Name is required!");
-    else if (leadObj.surname.trim() === "")
-      return setErrorMessage("Surname is required!");
-    else if (leadObj.cpf.trim() === "")
-      return setErrorMessage("CPF is required!");
-    else if (leadObj.rg.trim() === "")
-      return setErrorMessage("RG is required!");
-    else if (leadObj.address.trim() === "")
-      return setErrorMessage("Address is required!");
-    else {
-      dispatch(addNewLead(leadObj));
-      dispatch(showNotification({ message: "New Lead Added!", status: 1 }));
-      closeModal();
+  const openFileSelector = () => {
+    fileInputRef.current.click();
+  };
+
+  const saveLead = () => {
+    console.log("Salvando lead:", leadObj);
+    if (leadObj.name.trim() === "") {
+      setErrorMessage("Name is required!");
+      return;
+    } else if (leadObj.surname.trim() === "") {
+      setErrorMessage("Surname is required!");
+      return;
+    } else if (leadObj.cpf.trim() === "") {
+      setErrorMessage("CPF is required!");
+      return;
+    } else if (leadObj.rg.trim() === "") {
+      setErrorMessage("RG is required!");
+      return;
+    } else if (leadObj.address.trim() === "") {
+      setErrorMessage("Address is required!");
+      return;
     }
+
+    if (leadObj.id) {
+      dispatch(updateLead(leadObj));
+    } else {
+      dispatch(addNewLead(leadObj));
+    }
+    closeModal();
   };
 
   const updateFormValue = ({ updateType, value }) => {
     setErrorMessage("");
     setLeadObj({ ...leadObj, [updateType]: value });
+    console.log("Valor atualizado:", updateType, value);
   };
+
   return (
     <>
       <InputText
         type="text"
-        defaultValue={leadObj.name}
+        value={leadObj.name}
         updateType="name"
         containerStyle="mt-4"
-        labelTitle="Name"
+        labelTitle="Nome"
         updateFormValue={updateFormValue}
       />
       <InputText
         type="text"
-        defaultValue={leadObj.surname}
+        value={leadObj.surname}
         updateType="surname"
         containerStyle="mt-4"
-        labelTitle="Surname"
+        labelTitle="Sobrenome"
         updateFormValue={updateFormValue}
       />
       <InputText
         type="text"
-        defaultValue={leadObj.cpf}
+        value={leadObj.cpf}
         updateType="cpf"
         containerStyle="mt-4"
         labelTitle="CPF"
@@ -83,7 +108,7 @@ function AddLeadModalBody({ closeModal }) {
       />
       <InputText
         type="text"
-        defaultValue={leadObj.rg}
+        value={leadObj.rg}
         updateType="rg"
         containerStyle="mt-4"
         labelTitle="RG"
@@ -91,27 +116,35 @@ function AddLeadModalBody({ closeModal }) {
       />
       <InputText
         type="text"
-        defaultValue={leadObj.address}
+        value={leadObj.address}
         updateType="address"
         containerStyle="mt-4"
-        labelTitle="Address"
+        labelTitle="Endereço"
         updateFormValue={updateFormValue}
       />
 
       <div className="mt-4">
         <label className="label">
-          <span className="label-text">Photo</span>
+          <span className="label-text">Documento [RG,CNH]</span>
         </label>
-        <input type="file" onChange={handleFileChange} />
+        <button className="btn btn-primary" onClick={openFileSelector}>
+          Upload Documento
+        </button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+        />
+        {selectedFile && <div className="mt-2">{selectedFile.name}</div>}
       </div>
-
       <ErrorText styleClass="mt-16">{errorMessage}</ErrorText>
       <div className="modal-action">
         <button className="btn btn-ghost" onClick={closeModal}>
           Cancel
         </button>
-        <button className="btn btn-primary px-6" onClick={saveNewLead}>
-          Save
+        <button className="btn btn-primary px-6" onClick={saveLead}>
+          {leadObj.id ? "Update" : "Save"}
         </button>
       </div>
     </>
