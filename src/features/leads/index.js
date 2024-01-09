@@ -32,7 +32,6 @@ function Leads() {
   const [filteredLeads, setFilteredLeads] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState(null);
-  const [filterParam, setFilterParam] = useState("");
 
   useEffect(() => {
     dispatch(getLeadsContent());
@@ -44,33 +43,15 @@ function Leads() {
 
   const applySearch = useCallback(
     (searchValue) => {
-      let newFiltered = leads.filter(
+      const newFiltered = leads.filter(
         (lead) =>
           lead.name.toLowerCase().includes(searchValue.toLowerCase()) ||
           lead.surname.toLowerCase().includes(searchValue.toLowerCase()),
       );
-      if (filterParam) {
-        newFiltered = newFiltered.filter(
-          (lead) => lead.location === filterParam,
-        );
-      }
       setFilteredLeads(newFiltered);
     },
-    [leads, filterParam],
+    [leads],
   );
-
-  const applyFilter = useCallback(
-    (filter) => {
-      setFilterParam(filter);
-      applySearch("");
-    },
-    [applySearch],
-  );
-
-  const removeFilter = useCallback(() => {
-    setFilterParam("");
-    applySearch("");
-  }, [applySearch]);
 
   const openDeleteModal = (leadId) => {
     setSelectedLeadId(leadId);
@@ -102,12 +83,7 @@ function Leads() {
   return (
     <>
       <TitleCard title="Clientes Atuais" topMargin="mt-2">
-        <LeadManagement
-          applySearch={applySearch}
-          applyFilter={applyFilter}
-          removeFilter={removeFilter}
-          filterParam={filterParam}
-        />
+        <LeadManagement applySearch={applySearch} />
         <LeadsTable
           leads={filteredLeads}
           onEditLead={editCurrentLead}
