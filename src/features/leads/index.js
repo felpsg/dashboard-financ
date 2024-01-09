@@ -4,26 +4,36 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import TitleCard from "../../components/Cards/TitleCard";
+import SearchBar from "../../components/Input/SearchBar";
 import { showNotification } from "../common/headerSlice";
 import { openModal } from "../common/modalSlice";
 import { deleteLead, getLeadsContent } from "./leadSlice";
 
 function ConfirmDeleteModal({ isOpen, onClose, onConfirm, leadId }) {
   return (
-    <div className={`modal ${isOpen ? 'modal-open' : ''}`}>
+    <div className={`modal ${isOpen ? "modal-open" : ""}`}>
       <div className="modal-box">
         <p>Tem certeza de que deseja excluir este cliente?</p>
         <div className="modal-action">
-          <button className="btn btn-ghost" onClick={onClose}>Cancelar</button>
-          <button className="btn btn-error" onClick={() => onConfirm(leadId)}>Excluir</button>
+          <button className="btn btn-ghost" onClick={onClose}>
+            Cancelar
+          </button>
+          <button className="btn btn-error" onClick={() => onConfirm(leadId)}>
+            Excluir
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-const TopSideButtons = () => {
+const TopSideButtons = ({ applySearch }) => {
   const dispatch = useDispatch();
+  const [searchText, setSearchText] = useState("");
+
+  useEffect(() => {
+    applySearch(searchText);
+  }, [searchText, applySearch]);
 
   const openAddNewLeadModal = () => {
     dispatch(
@@ -33,6 +43,11 @@ const TopSideButtons = () => {
 
   return (
     <div className="inline-block float-right">
+      <SearchBar
+        searchText={searchText}
+        styleClass="mr-4"
+        setSearchText={setSearchText}
+      />
       <button
         className="btn px-6 btn-sm normal-case btn-primary"
         onClick={openAddNewLeadModal}
@@ -46,12 +61,31 @@ const TopSideButtons = () => {
 function Leads() {
   const { leads } = useSelector((state) => state.lead);
   const dispatch = useDispatch();
+  const [filteredLeads, setFilteredLeads] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState(null);
 
   useEffect(() => {
     dispatch(getLeadsContent());
   }, [dispatch]);
+
+  useEffect(() => {
+    setFilteredLeads(leads);
+  }, [leads]);
+
+  const applySearch = (searchValue) => {
+    if (!searchValue) {
+      setFilteredLeads(leads);
+      return;
+    }
+    const filtered = leads.filter(
+      (lead) =>
+        lead.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+        lead.surname.toLowerCase().includes(searchValue.toLowerCase()),
+      // Adicione outras condições de pesquisa conforme necessário
+    );
+    setFilteredLeads(filtered);
+  };
 
   const openDeleteModal = (leadId) => {
     setSelectedLeadId(leadId);
@@ -64,7 +98,9 @@ function Leads() {
 
   const confirmDelete = (leadId) => {
     dispatch(deleteLead({ id: leadId }));
-    dispatch(showNotification({ message: "Cliente excluído com sucesso!", status: 1 }));
+    dispatch(
+      showNotification({ message: "Cliente excluído com sucesso!", status: 1 }),
+    );
     closeDeleteModal();
   };
 
@@ -83,7 +119,7 @@ function Leads() {
       <TitleCard
         title="Clientes Atuais"
         topMargin="mt-2"
-        TopSideButtons={<TopSideButtons />}
+        TopSideButtons={<TopSideButtons applySearch={applySearch} />}
       >
         <div className="overflow-x-auto w-full">
           <table className="table w-full">
@@ -99,7 +135,7 @@ function Leads() {
               </tr>
             </thead>
             <tbody>
-              {leads.map((lead) => (
+              {filteredLeads.map((lead) => (
                 <tr key={lead.id}>
                   <td>
                     {lead.photoUrl && (
@@ -135,11 +171,11 @@ function Leads() {
           </table>
         </div>
       </TitleCard>
-      <ConfirmDeleteModal 
-        isOpen={isDeleteModalOpen} 
-        onClose={closeDeleteModal} 
-        onConfirm={confirmDelete} 
-        leadId={selectedLeadId} 
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+        leadId={selectedLeadId}
       />
     </>
   );
