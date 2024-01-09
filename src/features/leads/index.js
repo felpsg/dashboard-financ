@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import TitleCard from "../../components/Cards/TitleCard";
@@ -27,8 +27,8 @@ function ConfirmDeleteModal({ isOpen, onClose, onConfirm, leadId }) {
 }
 
 function Leads() {
-  const { leads } = useSelector((state) => state.lead);
   const dispatch = useDispatch();
+  const { leads } = useSelector((state) => state.lead);
   const [filteredLeads, setFilteredLeads] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState(null);
@@ -42,27 +42,35 @@ function Leads() {
     setFilteredLeads(leads);
   }, [leads]);
 
-  const applySearch = (searchValue) => {
-    let newFiltered = leads.filter(
-      (lead) =>
-        lead.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-        lead.surname.toLowerCase().includes(searchValue.toLowerCase()),
-    );
-    if (filterParam) {
-      newFiltered = newFiltered.filter((lead) => lead.location === filterParam);
-    }
-    setFilteredLeads(newFiltered);
-  };
+  const applySearch = useCallback(
+    (searchValue) => {
+      let newFiltered = leads.filter(
+        (lead) =>
+          lead.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+          lead.surname.toLowerCase().includes(searchValue.toLowerCase()),
+      );
+      if (filterParam) {
+        newFiltered = newFiltered.filter(
+          (lead) => lead.location === filterParam,
+        );
+      }
+      setFilteredLeads(newFiltered);
+    },
+    [leads, filterParam],
+  );
 
-  const applyFilter = (filter) => {
-    setFilterParam(filter);
-    applySearch("");
-  };
+  const applyFilter = useCallback(
+    (filter) => {
+      setFilterParam(filter);
+      applySearch("");
+    },
+    [applySearch],
+  );
 
-  const removeFilter = () => {
+  const removeFilter = useCallback(() => {
     setFilterParam("");
     applySearch("");
-  };
+  }, [applySearch]);
 
   const openDeleteModal = (leadId) => {
     setSelectedLeadId(leadId);

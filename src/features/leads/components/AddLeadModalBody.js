@@ -12,23 +12,21 @@ const INITIAL_LEAD_OBJ = {
   rg: "",
   address: "",
   photoUrl: "",
-  date: "", // Campo de data adicionado
+  date: "",
 };
 
 function AddLeadModalBody({ closeModal, initialData }) {
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState("");
-  const [leadObj, setLeadObj] = useState(initialData || INITIAL_LEAD_OBJ);
-
+  const [leadObj, setLeadObj] = useState({
+    ...INITIAL_LEAD_OBJ,
+    ...initialData,
+  });
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    if (initialData) {
-      setLeadObj(initialData);
-    } else {
-      setLeadObj(INITIAL_LEAD_OBJ);
-    }
+    setLeadObj({ ...INITIAL_LEAD_OBJ, ...initialData });
   }, [initialData]);
 
   const handleFileChange = (event) => {
@@ -49,7 +47,6 @@ function AddLeadModalBody({ closeModal, initialData }) {
   };
 
   const saveLead = () => {
-    console.log("Salvando lead:", leadObj);
     if (leadObj.name.trim() === "") {
       setErrorMessage("Name is required!");
       return;
@@ -78,7 +75,6 @@ function AddLeadModalBody({ closeModal, initialData }) {
   const updateFormValue = ({ updateType, value }) => {
     setErrorMessage("");
     setLeadObj({ ...leadObj, [updateType]: value });
-    console.log("Valor atualizado:", updateType, value);
   };
 
   return (
@@ -153,7 +149,9 @@ function AddLeadModalBody({ closeModal, initialData }) {
         />
         {selectedFile && <div className="mt-2">{selectedFile.name}</div>}
       </div>
+
       <ErrorText styleClass="mt-16">{errorMessage}</ErrorText>
+
       <div className="modal-action">
         <button className="btn btn-ghost" onClick={closeModal}>
           Cancel
