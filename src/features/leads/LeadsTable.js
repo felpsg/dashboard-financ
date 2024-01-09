@@ -1,4 +1,3 @@
-// Importação da biblioteca de formatação de data
 import EditIcon from "@heroicons/react/24/outline/PencilIcon";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 import { format } from "date-fns";
@@ -16,7 +15,7 @@ const LeadsTable = ({ leads, onEditLead, onDeleteLead }) => {
             <th>CPF</th>
             <th>RG</th>
             <th>Endereço</th>
-            <th>Data</th> {/* Nova coluna de data */}
+            <th>Data</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -24,12 +23,14 @@ const LeadsTable = ({ leads, onEditLead, onDeleteLead }) => {
           {leads.map((lead) => (
             <tr key={lead.id}>
               <td>
-                {lead.photoUrl && (
+                {lead.photoUrl ? (
                   <img
                     src={lead.photoUrl}
                     alt={`Foto de ${lead.name}`}
                     className="w-10 h-10 rounded-full"
                   />
+                ) : (
+                  <span>Sem Foto</span> // Substitua ou remova caso não haja foto
                 )}
               </td>
               <td>{lead.name}</td>
