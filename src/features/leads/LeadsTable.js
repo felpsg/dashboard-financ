@@ -41,7 +41,6 @@ const LeadsTable = ({ leads, onEditLead, onDeleteLead }) => {
                 {lead.date
                   ? format(new Date(lead.date), "dd/MM/yyyy")
                   : "Sem data"}
-                {/* Formatação da data */}
               </td>
               <td>
                 <button

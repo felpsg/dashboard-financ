@@ -1,5 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { v4 as uuidv4 } from 'uuid';
+
+// Importando a função de geração de UUID
 
 // Função para salvar leads no LocalStorage
 const saveLeadsToLocalStorage = (leads) => {
@@ -13,11 +16,11 @@ export const getLeadsContent = createAsyncThunk(
     try {
       const response = await axios.get("https://reqres.in/api/users?page=2");
       const leadsWithAdditionalInfo = response.data.data.map((user) => ({
-        id: user.id,
+        id: user.id, // Mantendo o ID da API
         name: user.first_name,
         surname: user.last_name,
         email: user.email,
-        photoUrl: user.avatar, // Adicionar URL da foto aqui
+        photoUrl: user.avatar,
         cpf: "",
         rg: "",
         address: "",
@@ -39,13 +42,14 @@ export const leadsSlice = createSlice({
     error: null,
   },
   reducers: {
-    // Reducer para adicionar um novo lead e salvar no LocalStorage
     addNewLead: (state, action) => {
-      state.leads.push(action.payload);
+      const newLead = {
+        ...action.payload,
+        id: uuidv4(), // Atribuindo um UUID único
+      };
+      state.leads.push(newLead);
       saveLeadsToLocalStorage(state.leads);
     },
-
-    // Reducer para atualizar um lead existente e salvar no LocalStorage
     updateLead: (state, action) => {
       const index = state.leads.findIndex(
         (lead) => lead.id === action.payload.id,
@@ -55,26 +59,19 @@ export const leadsSlice = createSlice({
         saveLeadsToLocalStorage(state.leads);
       }
     },
-
     deleteLead: (state, action) => {
-      console.log("Deleting lead with ID:", action.payload.id);
       const newLeads = state.leads.filter(
         (lead) => lead.id !== action.payload.id,
       );
-      console.log("Remaining leads:", newLeads);
       state.leads = newLeads;
       saveLeadsToLocalStorage(state.leads);
     },
-
-    // Reducer para carregar leads do LocalStorage
     loadLeads: (state) => {
       const savedLeads = localStorage.getItem("leads");
       if (savedLeads) {
         state.leads = JSON.parse(savedLeads);
       }
     },
-
-    // Reducer para limpar todos os leads (opcional)
     clearLeads: (state) => {
       state.leads = [];
       saveLeadsToLocalStorage(state.leads);
@@ -97,8 +94,7 @@ export const leadsSlice = createSlice({
 });
 
 // Ações exportadas do slice
-export const { addNewLead, updateLead, deleteLead, loadLeads, clearLeads } =
-  leadsSlice.actions;
+export const { addNewLead, updateLead, deleteLead, loadLeads, clearLeads } = leadsSlice.actions;
 
 // Reducer exportado do slice
 export default leadsSlice.reducer;
