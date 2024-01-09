@@ -12,6 +12,7 @@ const INITIAL_LEAD_OBJ = {
   rg: "",
   address: "",
   photoUrl: "",
+  date: "", // Campo de data adicionado
 };
 
 function AddLeadModalBody({ closeModal, initialData }) {
@@ -122,6 +123,20 @@ function AddLeadModalBody({ closeModal, initialData }) {
         labelTitle="Endereço"
         updateFormValue={updateFormValue}
       />
+
+      <div className="mt-4">
+        <label className="label">
+          <span className="label-text">Data</span>
+        </label>
+        <input
+          type="date"
+          value={leadObj.date}
+          onChange={(e) =>
+            updateFormValue({ updateType: "date", value: e.target.value })
+          }
+          className="input input-bordered w-full"
+        />
+      </div>
 
       <div className="mt-4">
         <label className="label">
