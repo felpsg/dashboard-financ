@@ -15,6 +15,7 @@ const LeadsTable = ({ leads, onEditLead, onDeleteLead }) => {
             <th>CPF</th>
             <th>RG</th>
             <th>Endereço</th>
+            <th>Telefone</th>
             <th>Data</th>
             <th>Ações</th>
           </tr>
@@ -38,6 +39,7 @@ const LeadsTable = ({ leads, onEditLead, onDeleteLead }) => {
               <td>{lead.cpf}</td>
               <td>{lead.rg}</td>
               <td>{lead.address}</td>
+              <td>{lead.phone}</td>
               <td>
                 {lead.date
                   ? format(new Date(lead.date), "dd/MM/yyyy")

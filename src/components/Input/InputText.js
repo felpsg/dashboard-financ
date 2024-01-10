@@ -23,7 +23,7 @@ function InputText({
       </label>
       <input
         type={type || "text"}
-        value={value || ""} // Assegura que o valor não seja undefined
+        value={value || ""} 
         placeholder={placeholder || ""}
         onChange={(e) => updateInputValue(e.target.value)}
         className="input input-bordered w-full"

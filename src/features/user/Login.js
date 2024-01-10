@@ -51,15 +51,15 @@ function Login() {
             <form onSubmit={(e) => submitForm(e)}>
               <div className="mb-4">
                 <InputText
-                  type="emailId"
-                  defaultValue={loginObj.emailId}
+                  type="email"
+                  value={loginObj.emailId}
                   updateType="emailId"
                   containerStyle="mt-4"
                   labelTitle="Email"
                   updateFormValue={updateFormValue}
                 />
                 <InputText
-                  defaultValue={loginObj.password}
+                  value={loginObj.password}
                   type="password"
                   updateType="password"
                   containerStyle="mt-4"
