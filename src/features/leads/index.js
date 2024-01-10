@@ -71,6 +71,7 @@ function Leads() {
   };
 
   const editCurrentLead = (lead) => {
+    // console.log("Dados a serem enviados para o modal:", lead);
     dispatch(
       openModal({
         title: "Editar Cliente",

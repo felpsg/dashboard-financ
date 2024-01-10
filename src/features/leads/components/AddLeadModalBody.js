@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
+import ConfirmModal from "../../../components/ConfirmModal/ConfirmModal";
 import InputText from "../../../components/Input/InputText";
 import ErrorText from "../../../components/Typography/ErrorText";
+import { closeModal } from "../../../features/common/modalSlice";
 import { addNewLead, updateLead } from "../leadSlice";
 
 const INITIAL_LEAD_OBJ = {
@@ -15,124 +17,69 @@ const INITIAL_LEAD_OBJ = {
   date: "",
 };
 
-function AddLeadModalBody({ closeModal, initialData }) {
-  const dispatch = useDispatch();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [leadObj, setLeadObj] = useState({
-    ...INITIAL_LEAD_OBJ,
-    ...initialData,
-  });
-  const [selectedFile, setSelectedFile] = useState(null);
-  const fileInputRef = useRef(null);
+const useLeadState = (initialData) => {
+  const [leadObj, setLeadObj] = useState(
+    initialData || { ...INITIAL_LEAD_OBJ },
+  );
+  const updateFormValue = ({ updateType, value }) =>
+    setLeadObj({ ...leadObj, [updateType]: value });
+  return [leadObj, updateFormValue];
+};
 
-  useEffect(() => {
-    setLeadObj({ ...INITIAL_LEAD_OBJ, ...initialData });
-  }, [initialData]);
+function AddLeadModalBody() {
+  const initialData = useSelector((state) => state.modal.initialData);
+  const dispatch = useDispatch();
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [leadObj, updateFormValue] = useLeadState(initialData);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const fileInputRef = useRef(null);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     setSelectedFile(file);
-
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setLeadObj((prev) => ({ ...prev, photoUrl: reader.result }));
-      };
+      reader.onloadend = () =>
+        updateFormValue({ updateType: "photoUrl", value: reader.result });
       reader.readAsDataURL(file);
     }
   };
 
-  const openFileSelector = () => {
-    fileInputRef.current.click();
-  };
+  const openFileSelector = () => fileInputRef.current.click();
 
   const saveLead = () => {
-    if (leadObj.name.trim() === "") {
-      setErrorMessage("Name is required!");
-      return;
-    } else if (leadObj.surname.trim() === "") {
-      setErrorMessage("Surname is required!");
-      return;
-    } else if (leadObj.cpf.trim() === "") {
-      setErrorMessage("CPF is required!");
-      return;
-    } else if (leadObj.rg.trim() === "") {
-      setErrorMessage("RG is required!");
-      return;
-    } else if (leadObj.address.trim() === "") {
-      setErrorMessage("Address is required!");
+    const emptyField = Object.entries(leadObj).find(
+      ([key, value]) => !value.trim() && key in INITIAL_LEAD_OBJ,
+    );
+    if (emptyField) {
+      setErrorMessage(`${emptyField[0]} é obrigatório!`);
       return;
     }
 
-    if (leadObj.id) {
-      dispatch(updateLead(leadObj));
-    } else {
-      dispatch(addNewLead(leadObj));
-    }
-    closeModal();
+    dispatch(leadObj.id ? updateLead(leadObj) : addNewLead(leadObj));
+    dispatch(closeModal());
   };
 
-  const updateFormValue = ({ updateType, value }) => {
-    setErrorMessage("");
-    setLeadObj({ ...leadObj, [updateType]: value });
+  const handleClose = () => {
+    setShowConfirmModal(false);
+    dispatch(closeModal());
   };
 
   return (
     <>
-      <InputText
-        type="text"
-        value={leadObj.name}
-        updateType="name"
-        containerStyle="mt-4"
-        labelTitle="Nome"
-        updateFormValue={updateFormValue}
-      />
-      <InputText
-        type="text"
-        value={leadObj.surname}
-        updateType="surname"
-        containerStyle="mt-4"
-        labelTitle="Sobrenome"
-        updateFormValue={updateFormValue}
-      />
-      <InputText
-        type="text"
-        value={leadObj.cpf}
-        updateType="cpf"
-        containerStyle="mt-4"
-        labelTitle="CPF"
-        updateFormValue={updateFormValue}
-      />
-      <InputText
-        type="text"
-        value={leadObj.rg}
-        updateType="rg"
-        containerStyle="mt-4"
-        labelTitle="RG"
-        updateFormValue={updateFormValue}
-      />
-      <InputText
-        type="text"
-        value={leadObj.address}
-        updateType="address"
-        containerStyle="mt-4"
-        labelTitle="Endereço"
-        updateFormValue={updateFormValue}
-      />
-
-      <div className="mt-4">
-        <label className="label">
-          <span className="label-text">Data</span>
-        </label>
-        <input
-          type="date"
-          value={leadObj.date}
-          onChange={(e) =>
-            updateFormValue({ updateType: "date", value: e.target.value })
-          }
-          className="input input-bordered w-full"
+      {Object.entries(INITIAL_LEAD_OBJ).map(([key, _]) => (
+        <InputText
+          key={key}
+          type={key === "date" ? "date" : "text"}
+          value={leadObj[key]}
+          updateType={key}
+          containerStyle="mt-4"
+          labelTitle={key.charAt(0).toUpperCase() + key.slice(1)}
+          updateFormValue={updateFormValue}
         />
-      </div>
+      ))}
 
       <div className="mt-4">
         <label className="label">
@@ -153,13 +100,25 @@ function AddLeadModalBody({ closeModal, initialData }) {
       <ErrorText styleClass="mt-16">{errorMessage}</ErrorText>
 
       <div className="modal-action">
-        <button className="btn btn-ghost" onClick={closeModal}>
-          Cancel
+        <button
+          className="btn btn-ghost"
+          onClick={() => setShowConfirmModal(true)}
+        >
+          Cancelar
         </button>
         <button className="btn btn-primary px-6" onClick={saveLead}>
-          {leadObj.id ? "Update" : "Save"}
+          {leadObj.id ? "Atualizar" : "Salvar"}
         </button>
       </div>
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleClose}
+        message="Tem certeza de que deseja cancelar a edição deste cadastro?"
+        confirmButtonText="Sim, cancelar"
+        cancelButtonText="Não"
+      />
     </>
   );
 }

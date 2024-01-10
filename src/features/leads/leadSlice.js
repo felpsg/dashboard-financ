@@ -1,13 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { v4 as uuidv4 } from 'uuid';
-
-// Importando a função de geração de UUID
-
-// Função para salvar leads no LocalStorage
-const saveLeadsToLocalStorage = (leads) => {
-  localStorage.setItem("leads", JSON.stringify(leads));
-};
+import { v4 as uuidv4 } from "uuid";
 
 // Thunk para obter conteúdo de leads da API
 export const getLeadsContent = createAsyncThunk(
@@ -16,7 +9,7 @@ export const getLeadsContent = createAsyncThunk(
     try {
       const response = await axios.get("https://reqres.in/api/users?page=2");
       const leadsWithAdditionalInfo = response.data.data.map((user) => ({
-        id: user.id, // Mantendo o ID da API
+        id: user.id,
         name: user.first_name,
         surname: user.last_name,
         email: user.email,
@@ -30,7 +23,7 @@ export const getLeadsContent = createAsyncThunk(
       console.error("Erro ao buscar leads:", error);
       return rejectWithValue("Não foi possível obter os leads");
     }
-  }
+  },
 );
 
 // Slice para leads
@@ -43,40 +36,27 @@ export const leadsSlice = createSlice({
   },
   reducers: {
     addNewLead: (state, action) => {
-      const newLead = {
-        ...action.payload,
-        id: uuidv4(), // Atribuindo um UUID único
-      };
+      // console.log("Adicionando novo lead:", action.payload);
+      const newLead = { ...action.payload, id: uuidv4() };
       state.leads.push(newLead);
-      saveLeadsToLocalStorage(state.leads);
     },
+
     updateLead: (state, action) => {
+      // console.log("Atualizando lead:", action.payload);
       const index = state.leads.findIndex(
         (lead) => lead.id === action.payload.id,
       );
       if (index !== -1) {
-        state.leads[index] = action.payload;
-        saveLeadsToLocalStorage(state.leads);
+        state.leads[index] = { ...state.leads[index], ...action.payload };
       }
     },
+
     deleteLead: (state, action) => {
-      const newLeads = state.leads.filter(
-        (lead) => lead.id !== action.payload.id,
-      );
-      state.leads = newLeads;
-      saveLeadsToLocalStorage(state.leads);
-    },
-    loadLeads: (state) => {
-      const savedLeads = localStorage.getItem("leads");
-      if (savedLeads) {
-        state.leads = JSON.parse(savedLeads);
-      }
-    },
-    clearLeads: (state) => {
-      state.leads = [];
-      saveLeadsToLocalStorage(state.leads);
+      // console.log("Excluindo lead:", action.payload.id);
+      state.leads = state.leads.filter((lead) => lead.id !== action.payload.id);
     },
   },
+
   extraReducers: (builder) => {
     builder
       .addCase(getLeadsContent.pending, (state) => {
@@ -93,8 +73,5 @@ export const leadsSlice = createSlice({
   },
 });
 
-// Ações exportadas do slice
-export const { addNewLead, updateLead, deleteLead, loadLeads, clearLeads } = leadsSlice.actions;
-
-// Reducer exportado do slice
+export const { addNewLead, updateLead, deleteLead } = leadsSlice.actions;
 export default leadsSlice.reducer;

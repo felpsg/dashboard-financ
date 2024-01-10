@@ -50,6 +50,7 @@ const LeadsTable = ({ leads, onEditLead, onDeleteLead }) => {
                 >
                   <EditIcon className="w-5 h-5" />
                 </button>
+
                 <button
                   className="btn btn-square btn-ghost"
                   onClick={() => onDeleteLead(lead.id)}
