@@ -8,12 +8,12 @@ import { closeModal } from "../../../features/common/modalSlice";
 import { addNewLead, updateLead } from "../leadSlice";
 
 const INITIAL_LEAD_OBJ = {
-  name: "",
-  surname: "",
-  cpf: "",
-  rg: "",
-  address: "",
-  photoUrl: "",
+  Nome: "",
+  Sobrenome: "",
+  CPF: "",
+  RG: "",
+  Endereço: "",
+  Telefone: "",
   date: "",
 };
 
